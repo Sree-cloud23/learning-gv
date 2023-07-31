@@ -1,0 +1,58 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml """\
+        apiVersion: v1
+        kind: Pod
+        spec:
+          serviceAccountName: jenkins-agent-kaniko
+          securityContext:
+            runAsUser: 0
+          imagePullSecrets:
+          - name: harbor-registry
+          - name: registry
+          containers:
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:debug
+            imagePullPolicy: Always
+            command:
+            - /busybox/cat
+            tty: true
+            volumeMounts:
+            - name: docker-config
+              mountPath: /kaniko/.docker
+            resources:
+              requests:
+                memory: 250Mi
+                cpu: 10m
+              limits:
+                memory: 4000Mi
+                cpu: 2500m
+          volumes:
+            - name: docker-config
+              projected:
+                sources:
+                - secret:
+                    name: harbor-robot-registry
+                    items:
+                      - key: .dockerconfigjson
+                        path: config.json
+        """.stripIndent()
+    }
+  }
+
+
+
+ stages {
+    stage("Tag Changes") {
+      steps {
+        container(name: 'kaniko', shell: '/busybox/sh') {
+          sh """#!/busybox/sh
+            echo "FROM ghcr.io/amirajen/ciap-utility:5.10.3-alpine.3.14-6.0" | \
+            /kaniko/executor --dockerfile /dev/stdin --destination harbor.mgmt.cs.usnc.eafcore.com/eaf/utility:5.10.3-alpine.3.14-6.0
+          """
+        }
+      }
+    }
+  }
+}

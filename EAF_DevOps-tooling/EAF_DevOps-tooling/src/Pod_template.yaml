@@ -1,0 +1,38 @@
+podTemplate(yaml: '''
+    apiVersion: v1
+    kind: Pod
+    spec:
+      serviceAccountName: jenkins
+      securityContext:
+        runAsUser: 0
+      imagePullSecrets:
+      - name: docker-registry
+      containers:
+      - name: jnlp
+        image: jenkins/inbound-agent:4.11.2-4
+        args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: 20Mi
+            cpu: 10m
+          limits:
+            memory: 250Mi
+            cpu: 200m
+''') {
+  node(POD_LABEL) {
+    stage('Get a Maven project') {
+      container('jnlp') {
+        stage('Build a Maven project') 
+        {
+          build job: 'Generic Seed Job'
+        }
+      }
+    }
+  }
+}
+
+stage('Tagging EI')
+    {
+        build job: 'EAF_Job_TagBranch', parameters: [string(name: 'GitTagParameter', value: "${Version}"), gitParameter(name: 'GitBranchParameter', value: 'origin/main'), string(name: 'GitUrlRepoParameter', value: 'https://alm-bitbucket.eu1.ccp.capgemini.com/scm/up/up_ei_main')]
+    }
