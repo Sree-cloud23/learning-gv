@@ -1,0 +1,737 @@
+Started by user DEEPAK
+Obtained JenkinsFiles/EAF/Jenkinsfile.groovy from git https://github.com/capgemini-gadm/EAF_ODS_Botperformance.git
+Loading library git-devops-libraries@tooling
+Attempting to resolve tooling from remote references...
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+using GIT_ASKPASS to set credentials git-devops
+ > git ls-remote -h -- https://github.com/capgemini-gadm/EAF_DevOps.git # timeout=10
+Found match: refs/heads/tooling revision cc5dc623a2e40bd5299a721f19e9c17c34744ca8
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+using credential git-devops
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/Deploy_EAF_Ods_Botperformance@libs/f1ba5aa495f7867327df8b8a3db20edc3c45449c77eb272cb9c28680755c32a0/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/capgemini-gadm/EAF_DevOps.git # timeout=10
+Fetching without tags
+Fetching upstream changes from https://github.com/capgemini-gadm/EAF_DevOps.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+using GIT_ASKPASS to set credentials git-devops
+ > git fetch --no-tags --force --progress -- https://github.com/capgemini-gadm/EAF_DevOps.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+Checking out Revision cc5dc623a2e40bd5299a721f19e9c17c34744ca8 (tooling)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f cc5dc623a2e40bd5299a721f19e9c17c34744ca8 # timeout=10
+Commit message: "Update Data_Seeding.groovy"
+[Pipeline] Start of Pipeline
+[Pipeline] echo
+Generating pod template
+[Pipeline] echo
+nodeContainerEnabled is false
+[Pipeline] echo
+mavenContainerEnabled is true
+[Pipeline] echo
+kanikoContainerEnabled is true
+[Pipeline] echo
+pythonContainerEnabled is null
+[Pipeline] echo
+postgresContainerEnabled is null
+[Pipeline] echo
+apimContainerEnabled is null
+[Pipeline] echo
+liquibaseContainerEnabled is null
+[Pipeline] echo
+GitRepo=eaf_ods_Botperformance GtiBranch=origin/feature/log4j Envir=DEV Region=NA AppEnv=EAF/NA/DEV
+[Pipeline] echo
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins-na-dev
+  securityContext:
+    runAsUser: 0
+  imagePullSecrets:
+  - name: docker-registry
+  containers:
+  - name: utils
+    image:  ghcr.io/capgemini-gadm/tools/utility:v5@sha256:7300192c5bb0e08eb561ad33030df930d6725eb0a11e098f5e901e31428ccd4f
+    imagePullPolicy: Always
+    resources:
+      requests:
+        memory: 20Mi
+        cpu: 10m
+      limits:
+        memory: 250Mi
+        cpu: 200m
+    command:
+    - cat
+    tty: true
+    env:
+    - name: BUILD_SUB_PATH
+      value: Deploy_EAF_Ods_Botperformance
+    volumeMounts:
+    - name: build-cache
+      mountPath: /cache
+    - name: docker-config
+      mountPath: /kaniko/.docker
+  - name: jnlp
+    image: jenkins/inbound-agent:4.11.2-4
+    args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
+    imagePullPolicy: Always
+    resources:
+      requests:
+        memory: 100Mi
+        cpu: 10m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+    - name: docker-config
+      mountPath: /kaniko/.docker
+    resources:
+      requests:
+        memory: 250Mi
+        cpu: 500m
+      limits:
+        memory: 3000Mi
+        cpu: 1500m
+  - name: maven
+    image: maven:3.6.3-jdk-8
+    command:
+    - cat
+    tty: true
+    env:
+    - name: BUILD_SUB_PATH
+      value: Deploy_EAF_Ods_Botperformance
+    - name: MAVEN_OPTS
+      value: "-Xmx4096M -Djava.net.preferIPv4Stack=true"
+    volumeMounts:
+      - name: build-cache
+        mountPath: /root/.m2
+        subPathExpr: $(BUILD_SUB_PATH)/.m2
+    resources:
+      requests:
+        memory: 5000Mi
+        cpu: 1000m
+      limits:
+        memory: 8000Mi
+        cpu: 2000m
+  volumes:
+    - name: build-cache
+      persistentVolumeClaim:
+        claimName: build-cache
+    - name: docker-config
+      projected:
+        sources:
+        - secret:
+            name: docker-registry
+            items:
+              - key: .dockerconfigjson
+                path: config.json
+
+[Pipeline] podTemplate
+[Pipeline] {
+[Pipeline] node
+Created Pod: kubernetes gadm-jenkins/deploy-eaf-ods-botperformance-62-2n83j-zmc2n-fjvpx
+Still waiting to schedule task
+‘deploy-eaf-ods-botperformance-62-2n83j-zmc2n-fjvpx’ is offline
+Agent deploy-eaf-ods-botperformance-62-2n83j-zmc2n-fjvpx is provisioned from template Deploy_EAF_Ods_Botperformance_62-2n83j-zmc2n
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    buildUrl: "http://jenkins.gadm-jenkins.svc.cluster.local:8080/job/Deploy_EAF_Ods_Botperformance/62/"
+    runUrl: "job/Deploy_EAF_Ods_Botperformance/62/"
+  labels:
+    jenkins/jenkins-jenkins-agent: "true"
+    jenkins/label-digest: "9920b1fb2c270b7a6439f84934bf3798417230de"
+    jenkins/label: "Deploy_EAF_Ods_Botperformance_62-2n83j"
+  name: "deploy-eaf-ods-botperformance-62-2n83j-zmc2n-fjvpx"
+  namespace: "gadm-jenkins"
+spec:
+  containers:
+  - command:
+    - "cat"
+    env:
+    - name: "BUILD_SUB_PATH"
+      value: "Deploy_EAF_Ods_Botperformance"
+    image: "ghcr.io/capgemini-gadm/tools/utility:v5@sha256:7300192c5bb0e08eb561ad33030df930d6725eb0a11e098f5e901e31428ccd4f"
+    imagePullPolicy: "Always"
+    name: "utils"
+    resources:
+      limits:
+        memory: "250Mi"
+        cpu: "200m"
+      requests:
+        memory: "20Mi"
+        cpu: "10m"
+    tty: true
+    volumeMounts:
+    - mountPath: "/cache"
+      name: "build-cache"
+    - mountPath: "/kaniko/.docker"
+      name: "docker-config"
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - args:
+    - "$(JENKINS_SECRET)"
+    - "$(JENKINS_NAME)"
+    env:
+    - name: "JENKINS_SECRET"
+      value: "********"
+    - name: "JENKINS_TUNNEL"
+      value: "jenkins-agent.gadm-jenkins.svc.cluster.local:50000"
+    - name: "JENKINS_AGENT_NAME"
+      value: "deploy-eaf-ods-botperformance-62-2n83j-zmc2n-fjvpx"
+    - name: "JENKINS_NAME"
+      value: "deploy-eaf-ods-botperformance-62-2n83j-zmc2n-fjvpx"
+    - name: "JENKINS_AGENT_WORKDIR"
+      value: "/home/jenkins/agent"
+    - name: "JENKINS_URL"
+      value: "http://jenkins.gadm-jenkins.svc.cluster.local:8080/"
+    image: "jenkins/inbound-agent:4.11.2-4"
+    imagePullPolicy: "Always"
+    name: "jnlp"
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+      requests:
+        memory: "100Mi"
+        cpu: "10m"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - command:
+    - "/busybox/cat"
+    image: "gcr.io/kaniko-project/executor:debug"
+    imagePullPolicy: "Always"
+    name: "kaniko"
+    resources:
+      limits:
+        memory: "3000Mi"
+        cpu: "1500m"
+      requests:
+        memory: "250Mi"
+        cpu: "500m"
+    tty: true
+    volumeMounts:
+    - mountPath: "/kaniko/.docker"
+      name: "docker-config"
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - command:
+    - "cat"
+    env:
+    - name: "BUILD_SUB_PATH"
+      value: "Deploy_EAF_Ods_Botperformance"
+    - name: "MAVEN_OPTS"
+      value: "-Xmx4096M -Djava.net.preferIPv4Stack=true"
+    image: "maven:3.6.3-jdk-8"
+    name: "maven"
+    resources:
+      limits:
+        memory: "8000Mi"
+        cpu: "2000m"
+      requests:
+        memory: "5000Mi"
+        cpu: "1000m"
+    tty: true
+    volumeMounts:
+    - mountPath: "/root/.m2"
+      name: "build-cache"
+      subPathExpr: "$(BUILD_SUB_PATH)/.m2"
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  imagePullSecrets:
+  - name: "docker-registry"
+  nodeSelector:
+    kubernetes.io/os: "linux"
+  restartPolicy: "Never"
+  securityContext:
+    runAsUser: 0
+  serviceAccountName: "jenkins-na-dev"
+  volumes:
+  - name: "build-cache"
+    persistentVolumeClaim:
+      claimName: "build-cache"
+  - name: "docker-config"
+    projected:
+      sources:
+      - secret:
+          items:
+          - key: ".dockerconfigjson"
+            path: "config.json"
+          name: "docker-registry"
+  - emptyDir:
+      medium: ""
+    name: "workspace-volume"
+
+Running on deploy-eaf-ods-botperformance-62-2n83j-zmc2n-fjvpx in /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (GetCode)
+[Pipeline] echo
+Timing, Checkout code: 040823.10:57.28
+[Pipeline] checkout
+The recommended git tool is: NONE
+using credential git-devops
+Cloning the remote Git repository
+Cloning repository https://github.com/capgemini-gadm/eaf_ods_Botperformance
+ > git init /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance # timeout=10
+Fetching upstream changes from https://github.com/capgemini-gadm/eaf_ods_Botperformance
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+using GIT_ASKPASS to set credentials git-devops
+ > git fetch --tags --force --progress -- https://github.com/capgemini-gadm/eaf_ods_Botperformance +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision bf559e6e1a730474adf1a1dff362ff36ebd03996 (refs/remotes/origin/feature/log4j)
+ > git config remote.origin.url https://github.com/capgemini-gadm/eaf_ods_Botperformance # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/feature/log4j^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f bf559e6e1a730474adf1a1dff362ff36ebd03996 # timeout=10
+Commit message: "added log4j"
+First time build. Skipping changelog.
+[Pipeline] sh
++ git rev-parse --short HEAD
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (ConfigUpdate)
+[Pipeline] fileExists
+[Pipeline] echo
+===true===
+[Pipeline] sh
++ pwd
+/home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance
+[Pipeline] sh
++ cp -Rpv src/main/resources/EAF/NA/DEV/application.properties src/main/resources/
+'src/main/resources/EAF/NA/DEV/application.properties' -> 'src/main/resources/application.properties'
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (MavenBuild)
+[Pipeline] echo
+maven install
+[Pipeline] container
+[Pipeline] {
+[Pipeline] echo
+====clean install====
+[Pipeline] sh
++ mvn clean install
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< com.capgemini:botperformance >--------------------
+[INFO] Building botperformance 2.6.6
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:3.1.0:clean (default-clean) @ botperformance ---
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ botperformance ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 10 resources
+[INFO] Copying 4 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ botperformance ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 48 source files to /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/target/classes
+[INFO] /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/src/main/java/com/capgemini/botperformance/tenant/handler/TransactionalBotHandler.java: Some input files use unchecked or unsafe operations.
+[INFO] /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/src/main/java/com/capgemini/botperformance/tenant/handler/TransactionalBotHandler.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:testResources (default-testResources) @ botperformance ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] skip non existing resourceDirectory /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ botperformance ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 6 source files to /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ botperformance ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.2:jar (default-jar) @ botperformance ---
+[INFO] Building jar: /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/target/botperformance.jar
+[INFO] 
+[INFO] --- maven-shade-plugin:3.2.4:shade (default) @ botperformance ---
+[INFO] Including javax.activation:activation:jar:1.1.1 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-validation:jar:2.6.6 in the shaded jar.
+[INFO] Including org.apache.tomcat.embed:tomcat-embed-el:jar:9.0.60 in the shaded jar.
+[INFO] Including org.hibernate.validator:hibernate-validator:jar:6.2.3.Final in the shaded jar.
+[INFO] Including jakarta.validation:jakarta.validation-api:jar:2.0.2 in the shaded jar.
+[INFO] Including org.jboss.logging:jboss-logging:jar:3.4.3.Final in the shaded jar.
+[INFO] Including org.postgresql:postgresql:jar:42.3.3 in the shaded jar.
+[INFO] Including org.checkerframework:checker-qual:jar:3.5.0 in the shaded jar.
+[INFO] Including commons-beanutils:commons-beanutils:jar:1.9.4 in the shaded jar.
+[INFO] Including commons-logging:commons-logging:jar:1.2 in the shaded jar.
+[INFO] Including commons-collections:commons-collections:jar:3.2.2 in the shaded jar.
+[INFO] Including commons-io:commons-io:jar:20030203.000550 in the shaded jar.
+[INFO] Including org.apache.commons:commons-text:jar:1.8 in the shaded jar.
+[INFO] Including org.apache.commons:commons-lang3:jar:3.12.0 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-web:jar:2.6.6 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-json:jar:2.6.6 in the shaded jar.
+[INFO] Including com.fasterxml.jackson.core:jackson-databind:jar:2.13.2.2 in the shaded jar.
+[INFO] Including com.fasterxml.jackson.core:jackson-annotations:jar:2.13.2 in the shaded jar.
+[INFO] Including com.fasterxml.jackson.core:jackson-core:jar:2.13.2 in the shaded jar.
+[INFO] Including com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.13.2 in the shaded jar.
+[INFO] Including com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.13.2 in the shaded jar.
+[INFO] Including com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.13.2 in the shaded jar.
+[INFO] Including org.springframework:spring-web:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-beans:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-webmvc:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-aop:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-context:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-expression:jar:5.3.18 in the shaded jar.
+[INFO] Including jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3 in the shaded jar.
+[INFO] Including jakarta.activation:jakarta.activation-api:jar:1.2.2 in the shaded jar.
+[INFO] Including org.hamcrest:hamcrest:jar:2.2 in the shaded jar.
+[INFO] Including net.bytebuddy:byte-buddy:jar:1.11.22 in the shaded jar.
+[INFO] Including org.springframework:spring-core:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-jcl:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-devtools:jar:2.6.6 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot:jar:2.6.6 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-autoconfigure:jar:2.6.6 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-data-jpa:jar:2.6.6 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-aop:jar:2.6.6 in the shaded jar.
+[INFO] Including org.aspectj:aspectjweaver:jar:1.9.7 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-jdbc:jar:2.6.6 in the shaded jar.
+[INFO] Including com.zaxxer:HikariCP:jar:4.0.3 in the shaded jar.
+[INFO] Including org.springframework:spring-jdbc:jar:5.3.18 in the shaded jar.
+[INFO] Including jakarta.transaction:jakarta.transaction-api:jar:1.3.3 in the shaded jar.
+[INFO] Including jakarta.persistence:jakarta.persistence-api:jar:2.2.3 in the shaded jar.
+[INFO] Including org.hibernate:hibernate-core:jar:5.6.7.Final in the shaded jar.
+[INFO] Including antlr:antlr:jar:2.7.7 in the shaded jar.
+[INFO] Including org.jboss:jandex:jar:2.4.2.Final in the shaded jar.
+[INFO] Including org.hibernate.common:hibernate-commons-annotations:jar:5.1.2.Final in the shaded jar.
+[INFO] Including org.glassfish.jaxb:jaxb-runtime:jar:2.3.6 in the shaded jar.
+[INFO] Including org.glassfish.jaxb:txw2:jar:2.3.6 in the shaded jar.
+[INFO] Including com.sun.istack:istack-commons-runtime:jar:3.0.12 in the shaded jar.
+[INFO] Including com.sun.activation:jakarta.activation:jar:1.2.2 in the shaded jar.
+[INFO] Including org.springframework.data:spring-data-jpa:jar:2.6.3 in the shaded jar.
+[INFO] Including org.springframework.data:spring-data-commons:jar:2.6.3 in the shaded jar.
+[INFO] Including org.springframework:spring-orm:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-tx:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework:spring-aspects:jar:5.3.18 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-tomcat:jar:2.6.6 in the shaded jar.
+[INFO] Including jakarta.annotation:jakarta.annotation-api:jar:1.3.5 in the shaded jar.
+[INFO] Including org.apache.tomcat.embed:tomcat-embed-core:jar:9.0.60 in the shaded jar.
+[INFO] Including org.apache.tomcat.embed:tomcat-embed-websocket:jar:9.0.60 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-configuration-processor:jar:2.6.6 in the shaded jar.
+[INFO] Including io.springfox:springfox-boot-starter:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-oas:jar:3.0.0 in the shaded jar.
+[INFO] Including io.swagger.core.v3:swagger-annotations:jar:2.1.2 in the shaded jar.
+[INFO] Including io.swagger.core.v3:swagger-models:jar:2.1.2 in the shaded jar.
+[INFO] Including io.springfox:springfox-spi:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-schema:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-core:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-spring-web:jar:3.0.0 in the shaded jar.
+[INFO] Including io.github.classgraph:classgraph:jar:4.8.83 in the shaded jar.
+[INFO] Including io.springfox:springfox-spring-webmvc:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-spring-webflux:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-swagger-common:jar:3.0.0 in the shaded jar.
+[INFO] Including org.mapstruct:mapstruct:jar:1.3.1.Final in the shaded jar.
+[INFO] Including io.springfox:springfox-data-rest:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-bean-validators:jar:3.0.0 in the shaded jar.
+[INFO] Including io.springfox:springfox-swagger2:jar:3.0.0 in the shaded jar.
+[INFO] Including io.swagger:swagger-annotations:jar:1.5.20 in the shaded jar.
+[INFO] Including io.swagger:swagger-models:jar:1.5.20 in the shaded jar.
+[INFO] Including io.springfox:springfox-swagger-ui:jar:3.0.0 in the shaded jar.
+[INFO] Including com.fasterxml:classmate:jar:1.5.1 in the shaded jar.
+[INFO] Including org.slf4j:slf4j-api:jar:1.7.36 in the shaded jar.
+[INFO] Including org.springframework.plugin:spring-plugin-core:jar:2.0.0.RELEASE in the shaded jar.
+[INFO] Including org.springframework.plugin:spring-plugin-metadata:jar:2.0.0.RELEASE in the shaded jar.
+[INFO] Including com.googlecode.json-simple:json-simple:jar:1.1.1 in the shaded jar.
+[INFO] Including junit:junit:jar:4.13.2 in the shaded jar.
+[INFO] Including org.hamcrest:hamcrest-core:jar:2.2 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter:jar:2.6.6 in the shaded jar.
+[INFO] Including org.yaml:snakeyaml:jar:1.29 in the shaded jar.
+[INFO] Including org.springframework.boot:spring-boot-starter-log4j2:jar:2.6.6 in the shaded jar.
+[INFO] Including org.apache.logging.log4j:log4j-slf4j-impl:jar:2.17.2 in the shaded jar.
+[INFO] Including org.apache.logging.log4j:log4j-api:jar:2.17.2 in the shaded jar.
+[INFO] Including org.apache.logging.log4j:log4j-core:jar:2.17.2 in the shaded jar.
+[INFO] Including org.apache.logging.log4j:log4j-jul:jar:2.17.2 in the shaded jar.
+[INFO] Including org.slf4j:jul-to-slf4j:jar:1.7.36 in the shaded jar.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] HikariCP-4.0.3.jar, activation-1.1.1.jar, antlr-2.7.7.jar, aspectjweaver-1.9.7.jar, botperformance.jar, byte-buddy-1.11.22.jar, checker-qual-3.5.0.jar, classgraph-4.8.83.jar, classmate-1.5.1.jar, commons-beanutils-1.9.4.jar, commons-collections-3.2.2.jar, commons-io-20030203.000550.jar, commons-lang3-3.12.0.jar, commons-logging-1.2.jar, commons-text-1.8.jar, hamcrest-2.2.jar, hamcrest-core-2.2.jar, hibernate-commons-annotations-5.1.2.Final.jar, hibernate-core-5.6.7.Final.jar, hibernate-validator-6.2.3.Final.jar, istack-commons-runtime-3.0.12.jar, jackson-annotations-2.13.2.jar, jackson-core-2.13.2.jar, jackson-databind-2.13.2.2.jar, jackson-datatype-jdk8-2.13.2.jar, jackson-datatype-jsr310-2.13.2.jar, jackson-module-parameter-names-2.13.2.jar, jakarta.activation-1.2.2.jar, jakarta.activation-api-1.2.2.jar, jakarta.annotation-api-1.3.5.jar, jakarta.persistence-api-2.2.3.jar, jakarta.transaction-api-1.3.3.jar, jakarta.validation-api-2.0.2.jar, jakarta.xml.bind-api-2.3.3.jar, jandex-2.4.2.Final.jar, jaxb-runtime-2.3.6.jar, jboss-logging-3.4.3.Final.jar, json-simple-1.1.1.jar, jul-to-slf4j-1.7.36.jar, junit-4.13.2.jar, log4j-api-2.17.2.jar, log4j-core-2.17.2.jar, log4j-jul-2.17.2.jar, log4j-slf4j-impl-2.17.2.jar, mapstruct-1.3.1.Final.jar, postgresql-42.3.3.jar, slf4j-api-1.7.36.jar, snakeyaml-1.29.jar, spring-aop-5.3.18.jar, spring-aspects-5.3.18.jar, spring-beans-5.3.18.jar, spring-boot-2.6.6.jar, spring-boot-autoconfigure-2.6.6.jar, spring-boot-configuration-processor-2.6.6.jar, spring-boot-devtools-2.6.6.jar, spring-boot-starter-2.6.6.jar, spring-boot-starter-aop-2.6.6.jar, spring-boot-starter-data-jpa-2.6.6.jar, spring-boot-starter-jdbc-2.6.6.jar, spring-boot-starter-json-2.6.6.jar, spring-boot-starter-log4j2-2.6.6.jar, spring-boot-starter-tomcat-2.6.6.jar, spring-boot-starter-validation-2.6.6.jar, spring-boot-starter-web-2.6.6.jar, spring-context-5.3.18.jar, spring-core-5.3.18.jar, spring-data-commons-2.6.3.jar, spring-data-jpa-2.6.3.jar, spring-expression-5.3.18.jar, spring-jcl-5.3.18.jar, spring-jdbc-5.3.18.jar, spring-orm-5.3.18.jar, spring-plugin-core-2.0.0.RELEASE.jar, spring-plugin-metadata-2.0.0.RELEASE.jar, spring-tx-5.3.18.jar, spring-web-5.3.18.jar, spring-webmvc-5.3.18.jar, springfox-bean-validators-3.0.0.jar, springfox-boot-starter-3.0.0.jar, springfox-core-3.0.0.jar, springfox-data-rest-3.0.0.jar, springfox-oas-3.0.0.jar, springfox-schema-3.0.0.jar, springfox-spi-3.0.0.jar, springfox-spring-web-3.0.0.jar, springfox-spring-webflux-3.0.0.jar, springfox-spring-webmvc-3.0.0.jar, springfox-swagger-common-3.0.0.jar, springfox-swagger-ui-3.0.0.jar, springfox-swagger2-3.0.0.jar, swagger-annotations-1.5.20.jar, swagger-annotations-2.1.2.jar, swagger-models-1.5.20.jar, swagger-models-2.1.2.jar, tomcat-embed-core-9.0.60.jar, tomcat-embed-el-9.0.60.jar, tomcat-embed-websocket-9.0.60.jar, txw2-2.3.6.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] botperformance.jar, spring-boot-2.6.6.jar, spring-boot-autoconfigure-2.6.6.jar, spring-boot-devtools-2.6.6.jar, springfox-boot-starter-3.0.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/spring-configuration-metadata.json
+[WARNING] activation-1.1.1.jar, checker-qual-3.5.0.jar, commons-beanutils-1.9.4.jar, commons-collections-3.2.2.jar, commons-lang3-3.12.0.jar, commons-logging-1.2.jar, commons-text-1.8.jar, jboss-logging-3.4.3.Final.jar, mapstruct-1.3.1.Final.jar, spring-boot-2.6.6.jar, spring-boot-autoconfigure-2.6.6.jar, spring-boot-configuration-processor-2.6.6.jar, spring-boot-devtools-2.6.6.jar, spring-boot-starter-2.6.6.jar, spring-boot-starter-aop-2.6.6.jar, spring-boot-starter-data-jpa-2.6.6.jar, spring-boot-starter-jdbc-2.6.6.jar, spring-boot-starter-json-2.6.6.jar, spring-boot-starter-log4j2-2.6.6.jar, spring-boot-starter-tomcat-2.6.6.jar, spring-boot-starter-validation-2.6.6.jar, spring-boot-starter-web-2.6.6.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] activation-1.1.1.jar, jakarta.activation-1.2.2.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/mailcap.default
+[WARNING]   - META-INF/mimetypes.default
+[WARNING]   - com.sun.activation.registries.LineTokenizer
+[WARNING]   - com.sun.activation.registries.LogSupport
+[WARNING]   - com.sun.activation.registries.MailcapFile
+[WARNING]   - com.sun.activation.registries.MailcapParseException
+[WARNING]   - com.sun.activation.registries.MailcapTokenizer
+[WARNING]   - com.sun.activation.registries.MimeTypeEntry
+[WARNING]   - com.sun.activation.registries.MimeTypeFile
+[WARNING]   - com.sun.activation.viewers.ImageViewer
+[WARNING]   - 3 more...
+[WARNING] activation-1.1.1.jar, jakarta.activation-1.2.2.jar, jakarta.activation-api-1.2.2.jar define 27 overlapping classes: 
+[WARNING]   - javax.activation.ActivationDataFlavor
+[WARNING]   - javax.activation.CommandInfo
+[WARNING]   - javax.activation.CommandMap
+[WARNING]   - javax.activation.CommandObject
+[WARNING]   - javax.activation.DataContentHandler
+[WARNING]   - javax.activation.DataContentHandlerFactory
+[WARNING]   - javax.activation.DataHandler
+[WARNING]   - javax.activation.DataHandler$1
+[WARNING]   - javax.activation.DataHandlerDataSource
+[WARNING]   - javax.activation.DataSource
+[WARNING]   - 17 more...
+[WARNING] commons-beanutils-1.9.4.jar, commons-collections-3.2.2.jar, commons-lang3-3.12.0.jar, commons-logging-1.2.jar, commons-text-1.8.jar, spring-boot-2.6.6.jar, spring-boot-autoconfigure-2.6.6.jar, spring-boot-configuration-processor-2.6.6.jar, spring-boot-devtools-2.6.6.jar, spring-boot-starter-2.6.6.jar, spring-boot-starter-aop-2.6.6.jar, spring-boot-starter-data-jpa-2.6.6.jar, spring-boot-starter-jdbc-2.6.6.jar, spring-boot-starter-json-2.6.6.jar, spring-boot-starter-log4j2-2.6.6.jar, spring-boot-starter-tomcat-2.6.6.jar, spring-boot-starter-validation-2.6.6.jar, spring-boot-starter-web-2.6.6.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] byte-buddy-1.11.22.jar, classmate-1.5.1.jar, jackson-annotations-2.13.2.jar, jackson-core-2.13.2.jar, jackson-databind-2.13.2.2.jar, jackson-datatype-jsr310-2.13.2.jar, log4j-api-2.17.2.jar, log4j-core-2.17.2.jar, log4j-jul-2.17.2.jar, log4j-slf4j-impl-2.17.2.jar, postgresql-42.3.3.jar, tomcat-embed-core-9.0.60.jar, tomcat-embed-el-9.0.60.jar, tomcat-embed-websocket-9.0.60.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE
+[WARNING] byte-buddy-1.11.22.jar, classmate-1.5.1.jar, jackson-core-2.13.2.jar, jackson-databind-2.13.2.2.jar, log4j-api-2.17.2.jar, log4j-core-2.17.2.jar, log4j-jul-2.17.2.jar, log4j-slf4j-impl-2.17.2.jar, tomcat-embed-core-9.0.60.jar, tomcat-embed-el-9.0.60.jar, tomcat-embed-websocket-9.0.60.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE
+[WARNING] spring-web-5.3.18.jar, tomcat-embed-el-9.0.60.jar, tomcat-embed-websocket-9.0.60.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/web-fragment.xml
+[WARNING] commons-logging-1.2.jar, spring-jcl-5.3.18.jar define 5 overlapping classes: 
+[WARNING]   - org.apache.commons.logging.Log
+[WARNING]   - org.apache.commons.logging.LogFactory
+[WARNING]   - org.apache.commons.logging.LogFactory$1
+[WARNING]   - org.apache.commons.logging.impl.NoOpLog
+[WARNING]   - org.apache.commons.logging.impl.SimpleLog
+[WARNING] byte-buddy-1.11.22.jar, classgraph-4.8.83.jar, jackson-core-2.13.2.jar, jackson-databind-2.13.2.2.jar, jackson-datatype-jdk8-2.13.2.jar, jackson-datatype-jsr310-2.13.2.jar, jackson-module-parameter-names-2.13.2.jar, log4j-api-2.17.2.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] spring-aop-5.3.18.jar, spring-aspects-5.3.18.jar, spring-beans-5.3.18.jar, spring-context-5.3.18.jar, spring-core-5.3.18.jar, spring-expression-5.3.18.jar, spring-jcl-5.3.18.jar, spring-jdbc-5.3.18.jar, spring-orm-5.3.18.jar, spring-plugin-core-2.0.0.RELEASE.jar, spring-plugin-metadata-2.0.0.RELEASE.jar, spring-tx-5.3.18.jar, spring-web-5.3.18.jar, spring-webmvc-5.3.18.jar define 2 overlapping resources: 
+[WARNING]   - META-INF/license.txt
+[WARNING]   - META-INF/notice.txt
+[WARNING] spring-aop-5.3.18.jar, spring-beans-5.3.18.jar, spring-context-5.3.18.jar, spring-data-commons-2.6.3.jar, spring-data-jpa-2.6.3.jar, spring-jdbc-5.3.18.jar, spring-plugin-core-2.0.0.RELEASE.jar, spring-tx-5.3.18.jar, spring-webmvc-5.3.18.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/spring.tooling
+[WARNING] istack-commons-runtime-3.0.12.jar, jakarta.activation-1.2.2.jar, jakarta.activation-api-1.2.2.jar, jakarta.annotation-api-1.3.5.jar, jakarta.xml.bind-api-2.3.3.jar, jaxb-runtime-2.3.6.jar, txw2-2.3.6.jar define 2 overlapping resources: 
+[WARNING]   - META-INF/LICENSE.md
+[WARNING]   - META-INF/NOTICE.md
+[WARNING] jakarta.activation-1.2.2.jar, jakarta.activation-api-1.2.2.jar define 4 overlapping classes: 
+[WARNING]   - javax.activation.CommandInfo$Beans
+[WARNING]   - javax.activation.CommandInfo$Beans$1
+[WARNING]   - javax.activation.MailcapCommandMap$1
+[WARNING]   - javax.activation.MimetypesFileTypeMap$1
+[WARNING] spring-boot-autoconfigure-2.6.6.jar, spring-boot-devtools-2.6.6.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/spring-autoconfigure-metadata.properties
+[WARNING] spring-boot-2.6.6.jar, spring-boot-autoconfigure-2.6.6.jar, spring-boot-devtools-2.6.6.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/additional-spring-configuration-metadata.json
+[WARNING] log4j-core-2.17.2.jar, spring-boot-2.6.6.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat
+[WARNING] spring-data-commons-2.6.3.jar, spring-data-jpa-2.6.3.jar define 2 overlapping resources: 
+[WARNING]   - license.txt
+[WARNING]   - notice.txt
+[WARNING] springfox-core-3.0.0.jar, springfox-spring-web-3.0.0.jar, springfox-spring-webflux-3.0.0.jar, springfox-spring-webmvc-3.0.0.jar define 1 overlapping resource: 
+[WARNING]   - .gitkeep
+[WARNING] log4j-api-2.17.2.jar, log4j-core-2.17.2.jar, log4j-jul-2.17.2.jar, log4j-slf4j-impl-2.17.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/DEPENDENCIES
+[WARNING] maven-shade-plugin has detected that some class files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the class is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See http://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Replacing original artifact with shaded artifact.
+[INFO] Replacing /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/target/botperformance.jar with /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/target/botperformance-2.6.6-shaded.jar
+[INFO] Dependency-reduced POM written at: /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/dependency-reduced-pom.xml
+[INFO] 
+[INFO] --- maven-install-plugin:2.5.2:install (default-install) @ botperformance ---
+[INFO] Installing /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/target/botperformance.jar to /root/.m2/repository/com/capgemini/botperformance/2.6.6/botperformance-2.6.6.jar
+[INFO] Installing /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/dependency-reduced-pom.xml to /root/.m2/repository/com/capgemini/botperformance/2.6.6/botperformance-2.6.6.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:00 min
+[INFO] Finished at: 2023-08-04T05:28:42Z
+[INFO] ------------------------------------------------------------------------
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] echo
+d0486e8d
+[Pipeline] stage
+[Pipeline] { (Docker Build)
+[Pipeline] echo
+Timing, docker build image: 040823.10:58.43
+[Pipeline] echo
+registryHostname is ghcr.io
+[Pipeline] echo
+projectname is capgemini-gadm
+[Pipeline] echo
+componentname is ods_botperf
+[Pipeline] echo
+ReistryName is ghcr.io/capgemini-gadm/na/dev/ods_botperf
+[Pipeline] echo
+Tag is bf559e6d0486e8d
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
+[36mINFO[0m[0000] Retrieving image manifest ghcr.io/capgemini-gadm/azul/azul-jre-17 
+[36mINFO[0m[0000] Retrieving image ghcr.io/capgemini-gadm/azul/azul-jre-17 from registry ghcr.io 
+[36mINFO[0m[0001] Built cross stage deps: map[]                
+[36mINFO[0m[0001] Retrieving image manifest ghcr.io/capgemini-gadm/azul/azul-jre-17 
+[36mINFO[0m[0001] Returning cached image manifest              
+[36mINFO[0m[0001] Executing 0 build triggers                   
+[36mINFO[0m[0001] Building stage 'ghcr.io/capgemini-gadm/azul/azul-jre-17' [idx: '0', base-idx: '-1'] 
+[36mINFO[0m[0001] Unpacking rootfs as cmd COPY ${JAR_FILE} app.jar requires it. 
+[36mINFO[0m[0005] ARG JAR_FILE=target/botperformance.jar       
+[36mINFO[0m[0005] COPY ${JAR_FILE} app.jar                     
+[36mINFO[0m[0005] Taking snapshot of files...                  
+[36mINFO[0m[0006] STOPSIGNAL SIGTERM                           
+[36mINFO[0m[0006] Cmd: STOPSIGNAL                              
+[36mINFO[0m[0006] Replacing StopSignal in config with SIGTERM  
+[36mINFO[0m[0006] EXPOSE 8081                                  
+[36mINFO[0m[0006] Cmd: EXPOSE                                  
+[36mINFO[0m[0006] Adding exposed port: 8081/tcp                
+[36mINFO[0m[0006] RUN mkdir -p /config                         
+[36mINFO[0m[0006] Initializing snapshotter ...                 
+[36mINFO[0m[0006] Taking snapshot of full filesystem...        
+[36mINFO[0m[0008] Cmd: /bin/sh                                 
+[36mINFO[0m[0008] Args: [-c mkdir -p /config]                  
+[36mINFO[0m[0008] Running: [/bin/sh -c mkdir -p /config]       
+[36mINFO[0m[0008] Taking snapshot of full filesystem...        
+[36mINFO[0m[0008] COPY src/main/resources/application.properties /config/ 
+[36mINFO[0m[0008] Taking snapshot of files...                  
+[36mINFO[0m[0008] ENTRYPOINT ["java","-jar","/app.jar","--spring.config.location=/config/application.properties","/config/*/"] 
+[36mINFO[0m[0008] Pushing image to ghcr.io/capgemini-gadm/na/dev/ods_botperf:bf559e6d0486e8d 
+[36mINFO[0m[0012] Pushed ghcr.io/capgemini-gadm/na/dev/ods_botperf@sha256:283a9277ce08a3eb82dac86b52fd886e8c5ec09dcdfe0d18f92ae4f188ba0945 
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] fileExists
+[Pipeline] dir
+Running in /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/deployment
+[Pipeline] {
+[Pipeline] echo
+Timing, Sucessfully entired into ReleaseDir to get chart: deployment: 040823.10:58.56
+[Pipeline] checkout
+The recommended git tool is: NONE
+using credential git-devops
+Cloning the remote Git repository
+Avoid second fetch
+Checking out Revision bbb20266ee338b88d3e1711df5a5648d179ef2ad (origin/develop)
+Cloning repository https://github.com/capgemini-gadm/EAF_helm_chart.git
+ > git init /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/deployment # timeout=10
+Fetching upstream changes from https://github.com/capgemini-gadm/EAF_helm_chart.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.30.2'
+using GIT_ASKPASS to set credentials git-devops
+ > git fetch --tags --force --progress -- https://github.com/capgemini-gadm/EAF_helm_chart.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/capgemini-gadm/EAF_helm_chart.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse origin/develop^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f bbb20266ee338b88d3e1711df5a5648d179ef2ad # timeout=10
+Commit message: "Update values.yaml"
+ > git rev-list --no-walk 38a51285862a60978cb314874d40cb6183483b9c # timeout=10
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] stage
+[Pipeline] { (Helm Chart Verify)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] echo
+Timing, Helm Chart Verify: 040823.10:58.58
+[Pipeline] dir
+Running in /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/deployment/datalakebotperformance
+[Pipeline] {
+[Pipeline] echo
+Timing, Sucessfully entired into ReleaseDir for Chart verification: deployment/datalakebotperformance: 040823.10:58.58
+[Pipeline] sh
++ helm lint devops/helm-chart/datalakebotperformance --values devops/helm-chart/config/EAF/NA/DEV/values.yaml
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Helm Chart Deployment)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] echo
+Timing, Helm Deployment to EAF/NA/DEV: 040823.10:58.58
+[Pipeline] sh
++ aws eks update-kubeconfig --region us-east-1 --name eks-sandpit
+Added new context arn:aws:eks:us-east-1:089067030054:cluster/eks-sandpit to /root/.kube/config
+[Pipeline] dir
+Running in /home/jenkins/agent/workspace/Deploy_EAF_Ods_Botperformance/deployment/datalakebotperformance
+[Pipeline] {
+[Pipeline] echo
+Timing, Sucessfully entired into ReleaseDir for release : deployment/datalakebotperformance: 040823.10:59.03
+[Pipeline] retry
+[Pipeline] {
+[Pipeline] sh
++ helm list --namespace gadm-ods
+NAME             	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+datalakepersist-1	gadm-ods 	38      	2023-07-27 10:48:43.975974435 +0000 UTC	deployed	datalakepersist-0.1.0       	1.0        
+datalakesctask-1 	gadm-ods 	24      	2023-07-15 11:20:09.114569358 +0000 UTC	deployed	datalakesctask-0.1.0        	1.0        
+datalakestream-1 	gadm-ods 	6       	2023-06-27 06:45:02.916496363 +0000 UTC	deployed	datalakebotperformance-0.1.0	1.0        
+ods-botperf-1    	gadm-ods 	13      	2023-06-27 05:59:38.822835061 +0000 UTC	deployed	datalakebotperformance-0.1.0	1.0        
+ods-healthcheck-1	gadm-ods 	15      	2023-07-10 09:51:13.250668651 +0000 UTC	deployed	datalakehealthcheck-0.1.0   	1.0        
+[Pipeline] }
+[Pipeline] // retry
+[Pipeline] retry
+[Pipeline] {
+[Pipeline] echo
+Timing, Helm Deployment to Development: 040823.10:59.08
+[Pipeline] sh
++ helm upgrade --install ods-botperf-1 devops/helm-chart/datalakebotperformance --namespace gadm-ods --values devops/helm-chart/config/EAF/NA/DEV/values.yaml --set-string 'image.tag=bf559e6d0486e8d' --set-string 'image.Envir=dev' --set-string 'image.Region=na' --description jenkins-build-62
+Release "ods-botperf-1" has been upgraded. Happy Helming!
+NAME: ods-botperf-1
+LAST DEPLOYED: Fri Aug  4 05:29:13 2023
+NAMESPACE: gadm-ods
+STATUS: deployed
+REVISION: 14
+TEST SUITE: None
+NOTES:
+1. Get the application URL by running these commands:
+  https://ods.gadm.eks-sandpit.na.eafcore.commap[path:/botperformance/(.*) pathType:ImplementationSpecific]
+[Pipeline] }
+[Pipeline] // retry
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // podTemplate
+[Pipeline] End of Pipeline
+Finished: SUCCESS
+REST API
+Jenkins 2.375.3
